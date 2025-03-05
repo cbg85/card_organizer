@@ -28,28 +28,15 @@ class _CardsScreenState extends State<CardsScreen> {
     });
   }
 
-  Future<void> _addCard() async {
-    if (cards.length >= 6) {
-      _showMessage("This folder can only hold 6 cards.");
-      return;
-    }
-    await dbHelper.addCard("Card ${cards.length + 1}", widget.folderName, "image_url", widget.folderId);
-    _loadCards();
-  }
-
-  Future<void> _deleteCard(int cardId) async {
+  void _deleteCard(int cardId) async {
     await dbHelper.deleteCard(cardId);
-    _loadCards();
-  }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    _loadCards(); // Refresh the screen
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("${widget.folderName} Cards")),
+      appBar: AppBar(title: Text(widget.folderName)),
       body: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         itemCount: cards.length,
@@ -57,21 +44,17 @@ class _CardsScreenState extends State<CardsScreen> {
           final card = cards[index];
           return Card(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Image.network(card['image'], height: 80, fit: BoxFit.cover), // Load Image
                 Text(card['name']),
-                IconButton(
-                  icon: Icon(Icons.delete),
+                ElevatedButton(
                   onPressed: () => _deleteCard(card['id']),
+                  child: Text("Delete"),
                 ),
               ],
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: _addCard,
       ),
     );
   }

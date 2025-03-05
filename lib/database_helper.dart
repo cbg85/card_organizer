@@ -37,7 +37,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         suit TEXT NOT NULL,
-        image TEXT NOT NULL,
+        image TEXT NOT NULL,  -- Storing image as string (URL or base64)
         folder_id INTEGER,
         FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE
       )
@@ -60,8 +60,21 @@ class DatabaseHelper {
     return await db.query('cards', where: 'folder_id = ?', whereArgs: [folderId]);
   }
 
+  Future<int> getCardCount(int folderId) async {
+    final db = await database;
+    var result = await db.rawQuery(
+        "SELECT COUNT(*) as count FROM cards WHERE folder_id = ?", [folderId]);
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
   Future<void> addCard(String name, String suit, String image, int folderId) async {
     final db = await database;
+    int count = await getCardCount(folderId);
+
+    if (count >= 6) {
+      throw Exception("This folder can only hold 6 cards.");
+    }
+
     await db.insert('cards', {
       'name': name,
       'suit': suit,

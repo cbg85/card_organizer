@@ -11,6 +11,7 @@ class CardOrganizerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My Card Organizer',
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: FolderScreen(),
     );
   }
